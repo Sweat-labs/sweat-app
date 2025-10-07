@@ -3,24 +3,44 @@ from fastapi.middleware.cors import CORSMiddleware
 from .core.database import Base, engine
 from .routers import workouts
 
-# create tables (dev only; later we'll use Alembic migrations)
+# ==================================================
+# DATABASE INITIALIZATION
+# ==================================================
 Base.metadata.create_all(bind=engine)
 
+# ==================================================
+# APP INITIALIZATION
+# ==================================================
 app = FastAPI(title="SWEat API", version="0.1.0")
 
-# Allow frontend apps (web + mobile) to talk to the API
+# ==================================================
+# CORS CONFIGURATION
+# ==================================================
+origins = [
+    "http://localhost:3000",   # Next.js web frontend
+    "http://127.0.0.1:3000",   # Alternate loopback URL
+    "http://localhost:8081",   # Expo web preview
+    "exp://127.0.0.1:19000",   # Expo mobile dev
+    "http://127.0.0.1:19006",  # Expo web dev
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow everything; later: ["http://localhost:3000"]
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Simple test route
+# ==================================================
+# BASIC TEST ROUTE
+# ==================================================
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
-# Include the workout-related routes
+# ==================================================
+# ROUTERS
+# ==================================================
+# Attach your workouts API endpoints
 app.include_router(workouts.router)
