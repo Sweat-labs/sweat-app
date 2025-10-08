@@ -1,23 +1,38 @@
-from sqlalchemy import create_engine #connection between app and database without it you cant send queries
-from sqlalchemy.orm import sessionmaker, declarative_base #session is writing down the workouts and at the end either commit and save to the database or rollback
-#base is like a bluebrint maker ex/ class WorkoutSession(Base): sql says that supposed to be a table in the database
-#ORM is the object relational mapper O = python class, R = database table, Mapper = matches them up
+from typing import Generator
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./sweat.db" #switch to postgres later
+from sqlalchemy import create_engine, event
+from sqlalchemy.orm import sessionmaker, DeclarativeBase, Session
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args = {"check_same_thread": False}) #remove connect_args in Postgres
-#check_same_thread relaxes default rule of SQLite that says that only one thread can open a database
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-#autocommit = false so that you can call db.commit() explicitly
-#use like db = SessionLocal() inside requests
-Base = declarative_base()
+SQLALCHEMY_DATABASE_URL = "sqlite:///./sweat.db"
 
-#dependency
-def get_db():
+# Create engine
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    connect_args={"check_same_thread": False} if SQLALCHEMY_DATABASE_URL.startswith("sqlite") else {},
+    pool_pre_ping=True,  # helps to avoid stale connections (esp. with Postgres later)
+)
+
+# Ensure SQLite enforces foreign key constraint
+@event.listens_for(engine, "connect")
+def _set_sqlite_pragma(dbapi_connection, _):
+    if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
+# one session per request
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+
+# SQLAlchemy 2.0
+class Base(DeclarativeBase):
+    """Base class for all ORM models."""
+    pass
+
+def get_db() -> Generator[Session, None, None]:
+    """FastAPI dependency that provides a DB session and guarantees cleanup."""
     db = SessionLocal()
-    try: 
+    try:
         yield db
     finally:
         db.close()
 
-        

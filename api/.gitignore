@@ -1,0 +1,4 @@
+
+# Local dev databases
+*.db
+sweat.db
