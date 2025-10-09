@@ -391,7 +391,4 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
-
-sweat-app-blank/node_modules/
-sweat-app-blank/.expo/
 >>>>>>> beac0a123aa1d0f8713f47b0f1cc0d81989bf9d6
