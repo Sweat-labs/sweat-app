@@ -54,3 +54,23 @@ def add_set(session_id: int, payload: WorkoutSetCreate, db: DBSession, response:
     db.refresh(new_set)
     response.headers["Location"] = f"/workouts/sessions/{session_id}/sets/{new_set.id}"
     return new_set
+
+@router.get("/sessions/{session_id}", response_model=WorkoutSessionOut, summary="Get one session (with sets)")
+def get_session(session_id: int, db: DBSession):
+    stmt = (
+        select(WorkoutSession)
+        .options(selectinload(WorkoutSession.sets))
+        .where(WorkoutSession.id == session_id)
+    )
+    session = db.execute(stmt).scalar_one_or_none()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return session
+
+@router.get("/sessions/{session_id}/sets", response_model=list[WorkoutSetOut], summary="List sets in a session")
+def list_sets_for_session(session_id: int, db: DBSession):
+    session = db.get(WorkoutSession, session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    # Return in the same order they’re stored; change to explicit order_by if you want
+    return session.sets
