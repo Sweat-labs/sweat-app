@@ -29,6 +29,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+<<<<<<< HEAD
 # Create tables on startup
 @app.on_event("startup")
 def _create_tables():
