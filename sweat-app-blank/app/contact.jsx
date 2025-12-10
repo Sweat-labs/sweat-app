@@ -26,13 +26,21 @@ const styles = StyleSheet.create({
 },
 title: {
   fontWeight: 'bold',
-  fontSize: 24
+  fontSize: 24,
+  color: 'white',
+  textShadowColor: '#c35a72',
+  textShadowOffset: { width: 2, height: 2 },
+  textShadowRadius: 10,
 
 },
    link: {
     marginVertical: 10,
     borderBottimWidth: 1,
     textDecorationLine: 'underline',
-    textDecorationColor: 'black'
+    textDecorationColor: 'white',
+    color: 'white',
+    textShadowColor: '#c35a72',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 10,
    },
 })
