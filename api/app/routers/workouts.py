@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy import select
@@ -12,6 +13,7 @@ from ..schemas.workout import (
     WorkoutSetOut,
 )
 
+
 router = APIRouter(prefix="/workouts", tags=["workouts"])
 
 DBSession = Annotated[Session, Depends(get_db)]
@@ -19,6 +21,7 @@ DBSession = Annotated[Session, Depends(get_db)]
 @router.post("/sessions", response_model=WorkoutSessionOut, status_code=201)
 def create_session(payload: WorkoutSessionCreate, db: DBSession, response: Response):
     session = WorkoutSession(note=payload.note)
+
     db.add(session)
     db.commit()
     db.refresh(session)
@@ -26,6 +29,7 @@ def create_session(payload: WorkoutSessionCreate, db: DBSession, response: Respo
     response.headers["Location"] = f"/workouts/sessions/{session.id}"
     return session
 
+<<<<<<< HEAD
 @router.get("/sessions", response_model=list[WorkoutSessionOut])
 def list_sessions(
     db: DBSession,
@@ -48,10 +52,12 @@ def add_set(session_id: int, payload: WorkoutSetCreate, db: DBSession, response:
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
 
+
     new_set = WorkoutSet(session_id=session_id, **payload.model_dump())
     db.add(new_set)
     db.commit()
     db.refresh(new_set)
+<<<<<<< HEAD
     response.headers["Location"] = f"/workouts/sessions/{session_id}/sets/{new_set.id}"
     return new_set
 

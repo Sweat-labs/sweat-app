@@ -41,7 +41,6 @@ class WorkoutSession(Base):
         Index("ix_workout_sessions_started_at", "started_at"),
     )
 
-
 class WorkoutSet(Base):
     __tablename__ = "workout_sets"
 
@@ -64,3 +63,4 @@ class WorkoutSet(Base):
         CheckConstraint("weight >= 0", name="ck_workout_sets_weight_ge_0"),
         Index("ix_workout_sets_session_exercise", "session_id", "exercise"),
     )
+

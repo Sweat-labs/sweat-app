@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<!-- SWEat – Web Fitness Tracker
 
-## Getting Started
+A full-stack fitness tracking platform where users can log workouts, track sets, manage personal goals, and calculate BMI, all through a responsive modern UI. This project includes:
 
-First, run the development server:
+Backend: FastAPI, SQLAlchemy, JWT Auth
 
-```bash
+Frontend: Next.js 15, React, TailwindCSS
+
+Storage: SQLite
+
+Authentication: Secure JWT login & user-specific sessions
+
+
+
+Features:
+
+*User Accounts & Authentication
+
+Create an account (Signup)
+
+Log in using JWT-based authentication
+
+Automatically attach workouts to correct user
+
+Secure protected endpoints (requires token)
+
+ *User Profile
+
+Save weight, height, activity level, and fitness goals
+
+Auto-calculate BMI on-the-fly
+
+Dashboard displays personalized fitness summary
+
+Edit profile anytime
+
+
+*Workout Tracking
+
+Create workout sessions
+
+Add individual sets (exercise name, reps, weight)
+
+Edit or delete sessions and sets
+
+Displays sessions chronologically
+
+Fully mobile-styled theme inspired by SWEat Mobile app
+
+
+*UI/UX
+
+Dark, sleek neon pink aesthetic
+
+Fully responsive dashboard layout
+
+Animated transitions & success/error banners
+
+Matching theme across login, profile, dashboard, and session pages
+
+
+
+
+Tech Stack:
+
+*Frontend
+
+Next.js 15 (App Router)
+
+React
+
+TailwindCSS
+
+LocalStorage for profile management
+
+Fetch API for backend communication
+
+
+*Backend
+
+FastAPI
+
+SQLite + SQLAlchemy ORM
+
+bcrypt / Passlib for Password Hashing
+
+JWT tokens (pyjwt) -->
+
+
+
+<!-- HOW TO RUN
+
+1. Backend Setup (FastAPI)
+cd api
+python -m venv .venv
+source .venv/bin/activate   # Mac/Linux (.venv\Scripts\activate on Windows)
+pip install -r requirements.txt
+
+2. Run API
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+
+*Backend will be live at: http://127.0.0.1:8000
+
+3. Frontend Setup (Next.js)
+cd web
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*Frontend will be live at: http://localhost:3000
+ -->

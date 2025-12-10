@@ -18,9 +18,16 @@ sweat-app-main/
 ## How to Run the Backend (FastAPI)
 ```bash
 cd api
+
 source ../.venv/bin/activate
+
 pip install -r requirements.txt
+
+run: 
+
 python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+
+in /api
 
 Visit http://127.0.0.1:8000/health
 
@@ -34,6 +41,8 @@ How to Run the Web Frontend (Next.js)
 cd web
 npm install
 npm run dev
+
+in /web
 
 Then open http://localhost:3000
 

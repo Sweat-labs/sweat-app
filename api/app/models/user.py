@@ -1,3 +1,4 @@
+
 from datetime import datetime
 from sqlalchemy import String, Integer, Float, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
@@ -22,3 +23,4 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
     )
+
