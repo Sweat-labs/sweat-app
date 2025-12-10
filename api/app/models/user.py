@@ -20,6 +20,8 @@ class User(Base):
     gender: Mapped[str | None] = mapped_column(String(10), nullable=True)
     age: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
+    daily_step_goal: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
     )

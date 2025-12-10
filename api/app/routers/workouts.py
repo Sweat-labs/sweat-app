@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy import select
@@ -29,7 +29,6 @@ def create_session(payload: WorkoutSessionCreate, db: DBSession, response: Respo
     response.headers["Location"] = f"/workouts/sessions/{session.id}"
     return session
 
-<<<<<<< HEAD
 @router.get("/sessions", response_model=list[WorkoutSessionOut])
 def list_sessions(
     db: DBSession,
@@ -57,7 +56,6 @@ def add_set(session_id: int, payload: WorkoutSetCreate, db: DBSession, response:
     db.add(new_set)
     db.commit()
     db.refresh(new_set)
-<<<<<<< HEAD
     response.headers["Location"] = f"/workouts/sessions/{session_id}/sets/{new_set.id}"
     return new_set
 

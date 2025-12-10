@@ -23,6 +23,7 @@ class UserProfileUpdate(BaseModel):
     main_goal: str | None = None
     gender: str | None = None
     age: int | None = None
+    daily_step_goal: int | None = None
 
 class UserProfileOut(BaseModel):
     id: int
@@ -32,5 +33,6 @@ class UserProfileOut(BaseModel):
     main_goal: str | None
     gender: str | None
     age: int | None
+    daily_step_goal: int | None
 
     model_config = {"from_attributes": True}

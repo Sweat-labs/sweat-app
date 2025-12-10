@@ -8,14 +8,15 @@ from starlette.responses import JSONResponse
 from .routers import workouts
 from .routers import meta
 from .routers import auth
-from .routers import user          # NEW
-from .routers import goals         # NEW
-from .routers import recommendations  # NEW
+from .routers import user        
+from .routers import goals         
+from .routers import recommendations
+from .routers import dashboard
+from .routers import steps
 
-# Import ALL models so SQLAlchemy can create tables
-from .models import workout, user as user_model, goal   # NEW
+from .models import workout, user as user_model, goal, steps as steps_model
 
-# DB bootstrap (remove after Alembic)
+
 from .core.database import Base, engine
 
 app = FastAPI(title="SWEat API", version="0.1.0")
@@ -29,7 +30,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-<<<<<<< HEAD
 # Create tables on startup
 @app.on_event("startup")
 def _create_tables():
@@ -39,10 +39,12 @@ def _create_tables():
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
-# REGISTER ROUTERS
+
 app.include_router(meta.router)
 app.include_router(workouts.router)
 app.include_router(auth.router)
-app.include_router(user.router)           # NEW
-app.include_router(goals.router)          # NEW
-app.include_router(recommendations.router)  # NEW
+app.include_router(user.router)
+app.include_router(goals.router)
+app.include_router(recommendations.router)
+app.include_router(dashboard.router)
+app.include_router(steps.router)

@@ -1,12 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from datetime import datetime, date
+
 from ..core.database import get_db
 from ..models.user import User
-from datetime import datetime
+from ..models.steps import DailySteps  
+
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 TEMP_USER_ID = 1  
+
 
 @router.get("/summary")
 def dashboard_summary(db: Session = Depends(get_db), user_id: int = TEMP_USER_ID):
@@ -15,14 +19,23 @@ def dashboard_summary(db: Session = Depends(get_db), user_id: int = TEMP_USER_ID
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    steps_today = 0         
-    steps_goal = 8000       
-    if steps_goal > 0:
-        percent_complete = round((steps_today / steps_goal) * 100, 1)
-    else:
-        percent_complete = 0
+    today = date.today()
+    steps_entry = (
+        db.query(DailySteps)
+        .filter(DailySteps.user_id == user.id, DailySteps.day == today)
+        .first()
+    )
 
-    calories_burned = 0     
+    steps_today = steps_entry.steps if steps_entry else 0
+
+    steps_goal = user.daily_step_goal or 8000
+
+    percent_complete = (
+        round((steps_today / steps_goal) * 100, 1)
+        if steps_goal > 0 else 0
+    )
+
+    calories_burned = round(steps_today * 0.04, 1)
 
     return {
         "greeting_name": user.username,
