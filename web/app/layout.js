@@ -1,28 +1,18 @@
-import './globals.css';
+import "./globals.css";
+import AppHeader from "@/components/AppHeader";
 
 export const metadata = {
   title: "SWEat Web",
-  description: "Workout tracker frontend",
+  description: "Workout tracker frontend for the SWEat app",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
-        <header className="bg-white border-b">
-          <div className="mx-auto max-w-4xl p-4 flex items-center gap-4">
-            <a href="/" className="text-lg font-semibold text-blue-600">
-              SWEat Web
-            </a>
-            <nav className="text-sm">
-              <a href="/" className="mr-4 text-gray-700 hover:text-blue-600">Home</a>
-              <a href="/dashboard" className="text-gray-700 hover:text-blue-600">Dashboard</a>
-            </nav>
-          </div>
-        </header>
+      <body className="bg-gray-100">
+        <AppHeader />
         {children}
       </body>
     </html>
   );
 }
-

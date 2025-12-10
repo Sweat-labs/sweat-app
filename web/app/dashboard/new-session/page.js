@@ -1,18 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
-export default function AddSetPage() {
+export default function NewSessionPage() {
   const router = useRouter();
-  const params = useParams();
-  const sessionId = params?.id;
 
-  const [exercise, setExercise] = useState("");
-  const [reps, setReps] = useState("");
-  const [weight, setWeight] = useState("");
+  const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -32,31 +28,23 @@ export default function AddSetPage() {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
-      const body = {
-        exercise,
-        reps: reps === "" ? null : Number(reps),
-        weight: weight === "" ? null : Number(weight),
-      };
-
-      const res = await fetch(
-        `${API_BASE}/workouts/sessions/${sessionId}/sets`,
-        {
-          method: "POST",
-          headers,
-          body: JSON.stringify(body),
-        }
-      );
+      const res = await fetch(`${API_BASE}/workouts/sessions`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ note }),
+      });
 
       if (!res.ok) {
         const text = await res.text();
         throw new Error(`${res.status} ${res.statusText}: ${text}`);
       }
 
-      setSuccess("Set added!");
+      setSuccess("Session created!");
+      // tiny delay so the user can see the message
       setTimeout(() => router.push("/dashboard"), 700);
     } catch (err) {
       console.error(err);
-      setError(err.message || "Failed to add set.");
+      setError(err.message || "Failed to create session.");
     } finally {
       setLoading(false);
     }
@@ -66,55 +54,25 @@ export default function AddSetPage() {
     <main className="min-h-screen bg-[#050510] text-pink-50 flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-xl rounded-3xl bg-gradient-to-br from-[#181828] to-[#11111e] border border-pink-500/40 p-6 md:p-8 shadow-2xl">
         <h1 className="text-2xl md:text-3xl font-extrabold text-pink-200 mb-2">
-          Add Set
+          New SWEat Session
         </h1>
         <p className="text-sm text-pink-100/80 mb-6">
-          Log an exercise set for this session.
+          Create a new workout session for today, then add sets for each
+          exercise you do.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-pink-300/80 mb-1">
-              Exercise
+              Session Note / Title
             </label>
-            <input
-              type="text"
-              value={exercise}
-              onChange={(e) => setExercise(e.target.value)}
+            <textarea
+              rows={3}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
               className="w-full rounded-xl border border-pink-500/50 bg-[#050509] px-3 py-2 text-sm text-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-500/70"
-              placeholder="e.g. Bench Press"
+              placeholder="e.g. Push day, heavy bench and shoulders"
             />
-          </div>
-
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <label className="block text-xs font-semibold uppercase tracking-wide text-pink-300/80 mb-1">
-                Reps
-              </label>
-              <input
-                type="number"
-                min="0"
-                value={reps}
-                onChange={(e) => setReps(e.target.value)}
-                className="w-full rounded-xl border border-pink-500/50 bg-[#050509] px-3 py-2 text-sm text-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-500/70"
-                placeholder="e.g. 10"
-              />
-            </div>
-
-            <div className="flex-1">
-              <label className="block text-xs font-semibold uppercase tracking-wide text-pink-300/80 mb-1">
-                Weight (optional)
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="0.5"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-                className="w-full rounded-xl border border-pink-500/50 bg-[#050509] px-3 py-2 text-sm text-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-500/70"
-                placeholder="e.g. 135"
-              />
-            </div>
           </div>
 
           {error && (
@@ -143,7 +101,7 @@ export default function AddSetPage() {
               disabled={loading}
               className="bg-pink-500 hover:bg-pink-400 disabled:opacity-60 text-white text-sm font-semibold px-5 py-2 rounded-full shadow-md"
             >
-              {loading ? "Adding..." : "Add Set"}
+              {loading ? "Creating..." : "Create Session"}
             </button>
           </div>
         </form>
