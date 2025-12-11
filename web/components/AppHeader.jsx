@@ -46,6 +46,14 @@ export default function AppHeader() {
             BMI Calculator
           </Link>
 
+          {/* NEW: Calorie planner / counter */}
+          <Link
+            href="/calories"
+            className={linkBase}
+          >
+            Calories
+          </Link>
+
           {!hasToken && (
             <>
               <Link
