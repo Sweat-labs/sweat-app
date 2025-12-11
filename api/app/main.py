@@ -13,8 +13,9 @@ from .routers import goals
 from .routers import recommendations
 from .routers import dashboard
 from .routers import steps
+from .routers import tasks
 
-from .models import workout, user as user_model, goal, steps as steps_model
+from .models import workout, user as user_model, goal, steps as steps_model, tasks as tasks_model
 
 
 from .core.database import Base, engine
@@ -48,3 +49,4 @@ app.include_router(goals.router)
 app.include_router(recommendations.router)
 app.include_router(dashboard.router)
 app.include_router(steps.router)
+app.include_router(tasks.router)
