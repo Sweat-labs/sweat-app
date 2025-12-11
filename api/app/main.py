@@ -14,15 +14,15 @@ from .routers import recommendations
 from .routers import dashboard
 from .routers import steps
 from .routers import tasks
+from .routers import progression
 
-from .models import workout, user as user_model, goal, steps as steps_model, tasks as tasks_model
+from .models import workout, user as user_model, goal, steps as steps_model, tasks as tasks_model, progression as progression_model
 
 
 from .core.database import Base, engine
 
 app = FastAPI(title="SWEat API", version="0.1.0")
 
-# CORS SETTINGS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -31,7 +31,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Create tables on startup
 @app.on_event("startup")
 def _create_tables():
     Base.metadata.create_all(bind=engine)
@@ -50,3 +49,4 @@ app.include_router(recommendations.router)
 app.include_router(dashboard.router)
 app.include_router(steps.router)
 app.include_router(tasks.router)
+app.include_router(progression.router)
