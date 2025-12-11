@@ -44,7 +44,7 @@ export default function EditSessionPage() {
         }
 
         setNote(match.note || "");
-        setName(match.name || "");
+        setName(match.name || match.title || "")
       } catch (err) {
         console.error(err);
         setError(err.message || "Failed to load session.");

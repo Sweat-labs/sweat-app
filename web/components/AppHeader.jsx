@@ -10,46 +10,61 @@ export default function AppHeader() {
   const [hasToken, setHasToken] = useState(false);
 
   useEffect(() => {
-    // Check if a token exists in localStorage (only runs on client)
     const token = getToken();
     setHasToken(!!token);
-  }, [pathname]); // re-check when route changes
+  }, [pathname]);
 
-  const linkBase = "text-sm px-3 py-1 rounded-lg hover:bg-white/80";
+  // Helper for highlighting the active link
+  function isActive(path) {
+    return pathname === path;
+  }
+
+  const baseLink =
+    "text-sm px-3 py-1.5 rounded-full transition-all duration-150";
+
+  const inactive =
+    "text-pink-200/80 hover:text-pink-100 hover:bg-pink-500/20";
+  const active =
+    "text-pink-100 bg-pink-600/40 border border-pink-500/60 shadow-md";
 
   return (
-    <header className="w-full bg-white shadow-sm mb-4">
-      <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-        {/* Left side: logo / app name */}
-        <Link href="/" className="flex items-center gap-2">
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white font-bold">
+    <header className="w-full bg-[#0a0a11] border-b border-pink-500/30 shadow-lg shadow-pink-500/10">
+      <div className="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between">
+        {/* Logo / Home link */}
+        <Link href="/" className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-full bg-pink-600 text-white flex items-center justify-center font-bold shadow-lg shadow-pink-500/30">
             S
-          </span>
-          <span className="text-lg font-semibold text-gray-900">
+          </div>
+          <span className="text-xl font-extrabold text-pink-200 tracking-wide drop-shadow">
             SWEat Web
           </span>
         </Link>
 
-        {/* Right side: navigation */}
-        <nav className="flex items-center gap-2">
+        {/* NAVIGATION */}
+        <nav className="flex items-center gap-3">
           <Link
             href="/dashboard"
-            className={linkBase}
+            className={`${baseLink} ${
+              isActive("/dashboard") ? active : inactive
+            }`}
           >
             Dashboard
           </Link>
 
           <Link
             href="/bmi"
-            className={linkBase}
+            className={`${baseLink} ${
+              isActive("/bmi") ? active : inactive
+            }`}
           >
-            BMI Calculator
+            BMI
           </Link>
 
-          {/* NEW: Calorie planner / counter */}
           <Link
             href="/calories"
-            className={linkBase}
+            className={`${baseLink} ${
+              isActive("/calories") ? active : inactive
+            }`}
           >
             Calories
           </Link>
@@ -58,15 +73,18 @@ export default function AppHeader() {
             <>
               <Link
                 href="/login"
-                className={linkBase}
+                className={`${baseLink} ${
+                  isActive("/login") ? active : inactive
+                }`}
               >
                 Login
               </Link>
+
               <Link
                 href="/auth/signup"
-                className={`${linkBase} border border-blue-600 text-blue-600`}
+                className={`${baseLink} border border-pink-500/60 text-pink-200 hover:bg-pink-600/30`}
               >
-                Sign up
+                Sign Up
               </Link>
             </>
           )}
@@ -74,7 +92,7 @@ export default function AppHeader() {
           {hasToken && (
             <Link
               href="/logout"
-              className={`${linkBase} border border-red-500 text-red-600`}
+              className={`${baseLink} border border-red-500/60 text-red-300 hover:bg-red-800/40`}
             >
               Logout
             </Link>

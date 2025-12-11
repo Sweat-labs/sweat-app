@@ -5,20 +5,21 @@ import { API_BASE } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
 export default function SessionCard({ session }) {
-  // Title + basic fields
+  // Title: only use explicit name/title; do NOT fall back to note
   const title =
-    session.name || session.title || `Session #${session.id ?? "?"}`;
+    session.name ||
+    session.title ||
+    `Session #${session.id ?? "?"}`;
 
   const startedAt =
     session.started_at || session.start_time || session.date || null;
 
-  // Backend uses "note"
   const notes = session.note || session.notes || session.comment || "";
 
   const sets = Array.isArray(session.sets) ? session.sets : [];
 
   async function handleDeleteSession(id) {
-    if (!confirm("Delete this session? This cannot be undone.")) return;
+    if (!confirm("Delete this entire session? This cannot be undone.")) return;
 
     try {
       const token = getToken();
@@ -37,7 +38,7 @@ export default function SessionCard({ session }) {
         throw new Error(`${res.status} ${res.statusText}: ${text}`);
       }
 
-      // Reload dashboard
+      // Reload dashboard so the list updates
       window.location.href = "/dashboard?ok=session-deleted";
     } catch (e) {
       alert(`Failed to delete session: ${e.message || e}`);
@@ -64,7 +65,6 @@ export default function SessionCard({ session }) {
         throw new Error(`${res.status} ${res.statusText}: ${text}`);
       }
 
-      // Simple refresh to show updated sets
       window.location.reload();
     } catch (e) {
       alert(`Failed to delete set: ${e.message || e}`);
@@ -72,53 +72,42 @@ export default function SessionCard({ session }) {
   }
 
   return (
-    <div className="rounded-2xl bg-gradient-to-br from-[#181828] to-[#11111e] border border-pink-500/40 p-4 md:p-5 shadow-md">
-      {/* Header row */}
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="text-lg md:text-xl font-semibold text-pink-50">
-            {title}
-          </h3>
-          {notes && (
-            <p className="mt-1 text-xs md:text-sm text-pink-100/85">
-              {notes}
-            </p>
-          )}
-        </div>
-
+    <div className="rounded-2xl border border-pink-500/40 bg-gradient-to-br from-[#181828] to-[#11111e] p-4 shadow-sm">
+      <div className="flex items-baseline justify-between">
+        <h3 className="text-xl font-semibold text-pink-100">{title}</h3>
         {startedAt && (
-          <span className="inline-flex items-center rounded-full bg-pink-500/15 border border-pink-400/40 px-3 py-1 text-[11px] md:text-xs text-pink-100">
+          <span className="text-xs text-pink-200/70">
             {new Date(startedAt).toLocaleString()}
           </span>
         )}
       </div>
 
-      {/* Sets list */}
-      <div className="mt-3">
-        <h4 className="text-xs font-semibold uppercase tracking-wide text-pink-200/80 mb-2">
-          Sets Logged
-        </h4>
+      {notes && (
+        <p className="mt-1 text-sm text-pink-100/80">
+          {notes}
+        </p>
+      )}
 
-        {sets.length > 0 ? (
-          <ul className="space-y-1.5">
+      {sets.length > 0 ? (
+        <div className="mt-3">
+          <h4 className="text-xs font-semibold uppercase tracking-wide text-pink-300/90 mb-1">
+            Sets
+          </h4>
+          <ul className="space-y-1">
             {sets.map((s) => (
               <li
                 key={s.id ?? `${s.exercise}-${Math.random()}`}
-                className="flex items-center justify-between text-xs md:text-sm text-pink-100/90 bg-[#151522] border border-pink-500/30 rounded-xl px-3 py-2"
+                className="text-sm text-pink-100/85 flex items-center justify-between"
               >
                 <span>
-                  <span className="font-semibold">
-                    {s.exercise || "Exercise"}
-                  </span>{" "}
-                  —{" "}
+                  • {s.exercise || "Exercise"} —{" "}
                   {s.reps != null ? `${s.reps} reps` : "reps N/A"}
                   {s.weight != null ? ` @ ${s.weight}` : ""}
                 </span>
-
                 {s.id != null && (
                   <button
                     onClick={() => handleDeleteSet(s.id)}
-                    className="ml-3 text-[11px] md:text-xs text-red-300 hover:text-red-200 underline"
+                    className="ml-3 text-xs text-red-300 hover:underline"
                     title="Delete set"
                   >
                     Delete
@@ -127,25 +116,22 @@ export default function SessionCard({ session }) {
               </li>
             ))}
           </ul>
-        ) : (
-          <p className="text-xs md:text-sm text-pink-200/75">
-            No sets yet. Add your first set to this session.
-          </p>
-        )}
-      </div>
+        </div>
+      ) : (
+        <p className="mt-3 text-sm text-pink-200/70">No sets yet.</p>
+      )}
 
-      {/* Action buttons */}
-      <div className="mt-4 flex flex-wrap items-center gap-3 text-xs md:text-sm">
+      <div className="mt-4 flex items-center gap-4 text-sm">
         <Link
           href={`/dashboard/${session.id}/add-set`}
-          className="inline-flex items-center rounded-full bg-pink-500 text-white px-4 py-1.5 font-semibold hover:bg-pink-400"
+          className="text-pink-300 hover:underline"
         >
           Add Set
         </Link>
 
         <Link
           href={`/dashboard/${session.id}/edit`}
-          className="inline-flex items-center rounded-full border border-amber-400/80 text-amber-200 px-4 py-1.5 hover:bg-amber-400/10"
+          className="text-yellow-300 hover:underline"
           title="Edit session note/name"
         >
           Edit Session
@@ -153,7 +139,7 @@ export default function SessionCard({ session }) {
 
         <button
           onClick={() => handleDeleteSession(session.id)}
-          className="inline-flex items-center rounded-full border border-red-400/70 text-red-200 px-4 py-1.5 hover:bg-red-500/10"
+          className="text-red-300 hover:underline"
           title="Delete session"
         >
           Delete Session

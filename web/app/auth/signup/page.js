@@ -7,30 +7,33 @@ import { API_BASE } from "@/lib/api";
 export default function SignupPage() {
   const router = useRouter();
 
-  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setLoading(true);
     setError("");
     setSuccess("");
-    setLoading(true);
 
     try {
-      if (password !== confirm) {
-        throw new Error("Passwords do not match.");
-      }
-
-      const res = await fetch(`${API_BASE}/auth/signup`, {
+      // IMPORTANT: backend endpoint is /auth/register (not /auth/signup)
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // backend only needs email + password right now
-        body: JSON.stringify({ email, password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // Backend expects: username, email, password, full_name
+        body: JSON.stringify({
+          username: email,       // username = email to satisfy backend schema
+          email,
+          password,
+          full_name: fullName,
+        }),
       });
 
       if (!res.ok) {
@@ -39,59 +42,60 @@ export default function SignupPage() {
       }
 
       setSuccess("Account created. You can now sign in.");
-      // small pause, then go to login
-      setTimeout(() => router.push("/login"), 800);
+      // Small delay so they see the success banner, then redirect
+      setTimeout(() => router.push("/login"), 900);
     } catch (err) {
       console.error(err);
-      setError(err.message || "Signup failed");
+      setError(err.message || "Sign up failed");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-screen bg-[#050509] text-pink-50 flex items-center justify-center px-4">
+    <main className="min-h-screen bg-[#050509] flex items-center justify-center px-4 py-10 text-pink-50">
       <div className="w-full max-w-md">
-        {/* Header + glow, matching mobile style */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="relative mb-4">
-            <div className="h-24 w-24 rounded-full bg-pink-500/20 blur-xl absolute inset-0" />
-            <div className="h-16 w-16 rounded-full bg-pink-500 flex items-center justify-center relative">
-              <span className="text-2xl font-bold text-white">S</span>
-            </div>
-          </div>
-          <h1 className="text-3xl font-bold tracking-wide">SWEat Web</h1>
-          <p className="text-sm text-pink-200/80 mt-1">
-            Create an account to start tracking your SWEat.
+        <div className="rounded-3xl bg-gradient-to-br from-[#181828] to-[#11111e] border border-pink-500/40 p-6 md:p-8 shadow-2xl">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-pink-200 mb-2">
+            Create your SWEat account
+          </h1>
+          <p className="text-sm text-pink-100/80 mb-6">
+            Sign up to start tracking your sessions, sets, and progress.
           </p>
-        </div>
 
-        {/* Card */}
-        <div className="bg-[#101018] border border-pink-500/30 rounded-2xl shadow-xl p-6">
-          <h2 className="text-xl font-semibold text-pink-50 mb-2">
-            Create an Account
-          </h2>
-          <p className="text-xs text-pink-200/70 mb-4">
-            Use a valid email and a password you will remember.
-          </p>
+          {error && (
+            <div className="mb-3 rounded-xl border border-red-400/70 bg-red-950/60 px-3 py-2 text-xs text-red-100">
+              <p className="font-semibold mb-1">Could not sign up</p>
+              <p className="break-words">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-3 rounded-xl border border-emerald-400/70 bg-emerald-950/60 px-3 py-2 text-xs text-emerald-100">
+              <p className="font-semibold mb-1">Success</p>
+              <p>{success}</p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Full name */}
             <div>
-              <label className="block text-xs font-semibold text-pink-200 mb-1">
-                Full Name
+              <label className="block text-xs font-semibold uppercase tracking-wide text-pink-300/80 mb-1">
+                Full name
               </label>
               <input
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="w-full rounded-xl border border-pink-500/40 bg-[#151522] px-3 py-2 text-sm text-pink-50
-                           placeholder:text-pink-200/40 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-400"
-                placeholder="John SWEat"
+                required
+                className="w-full rounded-xl border border-pink-500/50 bg-[#050509] px-3 py-2 text-sm text-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-500/70"
+                placeholder="e.g. John SWEat"
               />
             </div>
 
+            {/* Email */}
             <div>
-              <label className="block text-xs font-semibold text-pink-200 mb-1">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-pink-300/80 mb-1">
                 Email
               </label>
               <input
@@ -100,14 +104,14 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full rounded-xl border border-pink-500/40 bg-[#151522] px-3 py-2 text-sm text-pink-50
-                           placeholder:text-pink-200/40 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-400"
+                className="w-full rounded-xl border border-pink-500/50 bg-[#050509] px-3 py-2 text-sm text-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-500/70"
                 placeholder="you@example.com"
               />
             </div>
 
+            {/* Password */}
             <div>
-              <label className="block text-xs font-semibold text-pink-200 mb-1">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-pink-300/80 mb-1">
                 Password
               </label>
               <input
@@ -116,71 +120,30 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full rounded-xl border border-pink-500/40 bg-[#151522] px-3 py-2 text-sm text-pink-50
-                           placeholder:text-pink-200/40 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-400"
-                placeholder="••••••••"
+                className="w-full rounded-xl border border-pink-500/50 bg-[#050509] px-3 py-2 text-sm text-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-500/70"
+                placeholder="At least 8 characters"
               />
             </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-pink-200 mb-1">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                autoComplete="new-password"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                required
-                className="w-full rounded-xl border border-pink-500/40 bg-[#151522] px-3 py-2 text-sm text-pink-50
-                           placeholder:text-pink-200/40 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-400"
-                placeholder="••••••••"
-              />
-            </div>
-
-            {error && (
-              <p className="text-xs text-red-300 bg-red-900/40 border border-red-500/40 p-2 rounded-lg">
-                {error}
-              </p>
-            )}
-
-            {success && (
-              <p className="text-xs text-emerald-300 bg-emerald-900/30 border border-emerald-500/40 p-2 rounded-lg">
-                {success}
-              </p>
-            )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 bg-pink-500 hover:bg-pink-400 active:bg-pink-600
-                         text-white font-semibold py-2 rounded-full text-sm transition
-                         disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full bg-pink-500 hover:bg-pink-400 text-white text-sm font-semibold px-5 py-2.5 rounded-full shadow-md disabled:opacity-60 disabled:cursor-not-allowed mt-2"
             >
-              {loading ? "Creating account..." : "Create Account"}
+              {loading ? "Creating account..." : "Sign up"}
             </button>
           </form>
 
-          <div className="mt-4 text-xs text-center text-pink-200/80">
-            <span>Already have an account? </span>
+          <p className="mt-4 text-xs text-pink-200/80 text-center">
+            Already have an account?{" "}
             <button
               type="button"
               onClick={() => router.push("/login")}
-              className="font-semibold underline underline-offset-2 hover:text-pink-100"
+              className="text-pink-300 hover:underline"
             >
-              Login
+              Sign in
             </button>
-          </div>
-
-          <div className="mt-2 text-xs text-center">
-            <button
-              type="button"
-              onClick={() => router.push("/")}
-              className="text-pink-300/80 hover:text-pink-100 underline underline-offset-2"
-            >
-              Back to Home
-            </button>
-          </div>
+          </p>
         </div>
       </div>
     </main>
