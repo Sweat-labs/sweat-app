@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/api";
-import { saveToken, clearToken } from "@/lib/auth";
+import { setToken, clearToken } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,7 +19,6 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // clear any old token first
       clearToken();
 
       const res = await fetch(`${API_BASE}/auth/login`, {
@@ -40,7 +39,8 @@ export default function LoginPage() {
         throw new Error("No access_token in response");
       }
 
-      saveToken(data.access_token);
+      // ✅ store token
+      setToken(data.access_token);
       router.push("/dashboard");
     } catch (err) {
       console.error(err);
@@ -51,34 +51,22 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#050509] text-pink-50 flex items-center justify-center px-4">
-      {/* Glow circle + logo text */}
+    <main className="min-h-screen bg-[#050509] text-pink-50 flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
-        <div className="flex flex-col items-center mb-8">
-          <div className="relative mb-4">
-            <div className="h-24 w-24 rounded-full bg-pink-500/20 blur-xl absolute inset-0" />
-            <div className="h-16 w-16 rounded-full bg-pink-500 flex items-center justify-center relative">
-              <span className="text-2xl font-bold text-white">S</span>
-            </div>
-          </div>
-          <h1 className="text-3xl font-bold tracking-wide">SWEat Web</h1>
-          <p className="text-sm text-pink-200/80 mt-1">
-            Welcome back. Ready to SWEat?
-          </p>
-        </div>
-
         {/* Card */}
-        <div className="bg-[#101018] border border-pink-500/30 rounded-2xl shadow-xl p-6">
-          <h2 className="text-xl font-semibold text-pink-50 mb-2">
-            Sign in to your account
-          </h2>
-          <p className="text-xs text-pink-200/70 mb-4">
-            Use the same email and password as the mobile app.
+        <div className="rounded-3xl bg-gradient-to-br from-[#181828] to-[#11111e] border border-pink-500/40 p-6 md:p-8 shadow-2xl">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-pink-200 mb-2">
+            Welcome back to SWEat
+          </h1>
+          <p className="text-sm text-pink-100/80 mb-6">
+            Sign in to view your dashboard, log your workouts, and track your
+            progress.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email */}
             <div>
-              <label className="block text-xs font-semibold text-pink-200 mb-1">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-pink-300/80 mb-1">
                 Email
               </label>
               <input
@@ -87,14 +75,14 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full rounded-xl border border-pink-500/40 bg-[#151522] px-3 py-2 text-sm text-pink-50
-                           placeholder:text-pink-200/40 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-400"
+                className="w-full rounded-xl border border-pink-500/50 bg-[#050509] px-3 py-2 text-sm text-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-500/70"
                 placeholder="you@example.com"
               />
             </div>
 
+            {/* Password */}
             <div>
-              <label className="block text-xs font-semibold text-pink-200 mb-1">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-pink-300/80 mb-1">
                 Password
               </label>
               <input
@@ -103,14 +91,13 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full rounded-xl border border-pink-500/40 bg-[#151522] px-3 py-2 text-sm text-pink-50
-                           placeholder:text-pink-200/40 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-400"
+                className="w-full rounded-xl border border-pink-500/50 bg-[#050509] px-3 py-2 text-sm text-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-500/70"
                 placeholder="••••••••"
               />
             </div>
 
             {error && (
-              <p className="text-xs text-red-300 bg-red-900/40 border border-red-500/40 p-2 rounded-lg">
+              <p className="text-xs text-red-200 bg-red-950/60 border border-red-400/60 p-2 rounded-xl">
                 {error}
               </p>
             )}
@@ -118,34 +105,36 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 bg-pink-500 hover:bg-pink-400 active:bg-pink-600
-                         text-white font-semibold py-2 rounded-full text-sm transition
-                         disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full bg-pink-500 hover:bg-pink-400 text-white text-sm font-semibold px-5 py-2.5 rounded-full shadow-md disabled:opacity-60"
             >
               {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
 
-          <div className="mt-4 text-xs text-center text-pink-200/80">
-            <span>Need an account? </span>
+          {/* Extra links */}
+          <div className="mt-4 flex items-center justify-between text-xs">
+            <button
+              type="button"
+              onClick={() => router.push("/dashboard")}
+              className="text-pink-200 hover:underline"
+            >
+              ← Back to Dashboard
+            </button>
+
             <button
               type="button"
               onClick={() => router.push("/auth/signup")}
-              className="font-semibold underline underline-offset-2 hover:text-pink-100"
+              className="text-pink-300 hover:underline"
             >
-              Create one
+              Need an account? Sign up
             </button>
           </div>
 
-          <div className="mt-2 text-xs text-center">
-            <button
-              type="button"
-              onClick={() => router.push("/")}
-              className="text-pink-300/80 hover:text-pink-100 underline underline-offset-2"
-            >
-              Back to Home
-            </button>
-          </div>
+          <p className="mt-3 text-[11px] text-pink-200/70">
+            Make sure your backend is running at{" "}
+            <span className="font-mono text-pink-100">{API_BASE}</span> to
+            log in successfully.
+          </p>
         </div>
       </div>
     </main>

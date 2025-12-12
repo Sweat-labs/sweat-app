@@ -1,13 +1,12 @@
-
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, Body
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 from datetime import datetime
 
 from ..core.database import get_db
 from ..models.workout import WorkoutSession, WorkoutSet
-from ..models.progression import ExerciseProgress      # <-- NEW
+from ..models.progression import ExerciseProgress
 from ..schemas.workout import (
     WorkoutSessionCreate,
     WorkoutSessionOut,
@@ -16,17 +15,15 @@ from ..schemas.workout import (
 )
 
 router = APIRouter(prefix="/workouts", tags=["workouts"])
-
 DBSession = Annotated[Session, Depends(get_db)]
+
 
 @router.post("/sessions", response_model=WorkoutSessionOut, status_code=201)
 def create_session(payload: WorkoutSessionCreate, db: DBSession, response: Response):
     session = WorkoutSession(note=payload.note)
-
     db.add(session)
     db.commit()
     db.refresh(session)
-
     response.headers["Location"] = f"/workouts/sessions/{session.id}"
     return session
 
@@ -44,11 +41,12 @@ def list_sessions(
         .limit(limit)
         .offset(offset)
     )
-    result = db.execute(stmt).scalars().all()
-    return result
+    return db.execute(stmt).scalars().all()
+
 
 @router.post("/sessions/{session_id}/sets", response_model=WorkoutSetOut, status_code=201)
 def add_set(session_id: int, payload: WorkoutSetCreate, db: DBSession, response: Response):
+
     session = db.get(WorkoutSession, session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -69,16 +67,17 @@ def add_set(session_id: int, payload: WorkoutSetCreate, db: DBSession, response:
         exercise = new_set.exercise
         weight = new_set.weight
         reps = new_set.reps
-        user_id = 1 
+        user_id = 1  
 
         existing = (
             db.query(ExerciseProgress)
-            .filter(ExerciseProgress.user_id == user_id,
-                    ExerciseProgress.exercise == exercise)
+            .filter(
+                ExerciseProgress.user_id == user_id,
+                ExerciseProgress.exercise == exercise,
+            )
             .first()
         )
 
-      
         next_weight = weight + 5 if reps >= 12 else None
 
         if existing:
@@ -86,23 +85,24 @@ def add_set(session_id: int, payload: WorkoutSetCreate, db: DBSession, response:
             existing.best_reps_first_set = reps
             existing.recommended_next_weight = next_weight
             existing.updated_at = datetime.utcnow()
-
         else:
-            new_prog = ExerciseProgress(
-                user_id=user_id,
-                exercise=exercise,
-                current_weight=weight,
-                best_reps_first_set=reps,
-                recommended_next_weight=next_weight,
+            db.add(
+                ExerciseProgress(
+                    user_id=user_id,
+                    exercise=exercise,
+                    current_weight=weight,
+                    best_reps_first_set=reps,
+                    recommended_next_weight=next_weight,
+                )
             )
-            db.add(new_prog)
 
         db.commit()
 
     response.headers["Location"] = f"/workouts/sessions/{session_id}/sets/{new_set.id}"
     return new_set
 
-@router.get("/sessions/{session_id}", response_model=WorkoutSessionOut, summary="Get one session (with sets)")
+
+@router.get("/sessions/{session_id}", response_model=WorkoutSessionOut)
 def get_session(session_id: int, db: DBSession):
     stmt = (
         select(WorkoutSession)
@@ -115,9 +115,54 @@ def get_session(session_id: int, db: DBSession):
     return session
 
 
-@router.get("/sessions/{session_id}/sets", response_model=list[WorkoutSetOut], summary="List sets in a session")
+@router.get("/sessions/{session_id}/sets", response_model=list[WorkoutSetOut])
 def list_sets_for_session(session_id: int, db: DBSession):
     session = db.get(WorkoutSession, session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
     return session.sets
+
+@router.put("/sessions/{session_id}", response_model=WorkoutSessionOut)
+def update_session(
+    session_id: int,
+    payload: dict = Body(...),
+    db: DBSession = Depends(get_db),
+):
+    session = db.get(WorkoutSession, session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    if "note" in payload:
+        session.note = payload["note"]
+
+    if "name" in payload and hasattr(session, "name"):
+        session.name = payload["name"]
+
+    db.commit()
+    db.refresh(session)
+    return session
+
+
+@router.delete("/sessions/{session_id}", status_code=204)
+def delete_session(session_id: int, db: DBSession):
+    session = db.get(WorkoutSession, session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    for s in list(session.sets):
+        db.delete(s)
+
+    db.delete(session)
+    db.commit()
+    return Response(status_code=204)
+
+
+@router.delete("/sets/{set_id}", status_code=204)
+def delete_set(set_id: int, db: DBSession):
+    the_set = db.get(WorkoutSet, set_id)
+    if not the_set:
+        raise HTTPException(status_code=404, detail="Set not found")
+
+    db.delete(the_set)
+    db.commit()
+    return Response(status_code=204)
