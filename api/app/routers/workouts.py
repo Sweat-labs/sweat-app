@@ -17,9 +17,6 @@ from ..schemas.workout import (
 router = APIRouter(prefix="/workouts", tags=["workouts"])
 DBSession = Annotated[Session, Depends(get_db)]
 
-# -------------------------------------------------------------
-# YOUR ORIGINAL WORKING ENDPOINTS (UNCHANGED)
-# -------------------------------------------------------------
 
 @router.post("/sessions", response_model=WorkoutSessionOut, status_code=201)
 def create_session(payload: WorkoutSessionCreate, db: DBSession, response: Response):
@@ -59,9 +56,6 @@ def add_set(session_id: int, payload: WorkoutSetCreate, db: DBSession, response:
     db.commit()
     db.refresh(new_set)
 
-    # ---------------------
-    # PROGRESSION LOGIC (KEEP THIS)
-    # ---------------------
     first_set = (
         db.query(WorkoutSet)
         .filter(WorkoutSet.session_id == session_id)
@@ -73,7 +67,7 @@ def add_set(session_id: int, payload: WorkoutSetCreate, db: DBSession, response:
         exercise = new_set.exercise
         weight = new_set.weight
         reps = new_set.reps
-        user_id = 1  # TODO: swap for logged-in user
+        user_id = 1  
 
         existing = (
             db.query(ExerciseProgress)
@@ -127,12 +121,6 @@ def list_sets_for_session(session_id: int, db: DBSession):
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
     return session.sets
-
-
-
-# -------------------------------------------------------------
-# NEW ENDPOINTS FOR GEO'S WEBSITE — ADDED SAFELY BELOW
-# -------------------------------------------------------------
 
 @router.put("/sessions/{session_id}", response_model=WorkoutSessionOut)
 def update_session(
